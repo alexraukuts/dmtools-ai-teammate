@@ -16,6 +16,9 @@ on:
         description: 'Ticket key for concurrency grouping (e.g., JD-123)'
         required: false
         default: 'default'
+      project_key:
+        description: 'Project key for multi-project config selection (e.g., dmc)'
+        required: false
 
 permissions:
   contents: write
@@ -48,11 +51,15 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Java Environment
-        uses: ./.github/actions/setup-java-only
         with:
-          cache-key-suffix: '-cursor'
+          submodules: true
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -137,10 +144,12 @@ jobs:
         run: |
           npx @github/copilot --version || echo "Copilot CLI verification - will be available with token"
 
-      - name: Install DMTools CLI
+      - name: Install DMTools CLI v1.7.180
         run: |
-          curl -fsSL https://github.com/epam/dm.ai/releases/latest/download/install.sh | bash
-          echo "$HOME/.dmtools/bin" >> $GITHUB_PATH
+          curl -fsSL https://github.com/epam/dm.ai/releases/download/v1.7.180/install.sh | bash -s -- v1.7.180
+
+      - name: Add DMTools to PATH
+        run: echo "$HOME/.dmtools/bin" >> $GITHUB_PATH
 
       - name: Verify CLI Installations
         run: |
@@ -155,9 +164,9 @@ jobs:
 
       - name: Configure Git Author
         run: |
-          git config --global user.name "AI Teammate"
-          git config --global user.email "agent.ai.native@gmail.com"
-          echo "✅ Git author configured as AI Teammate"
+          git config --global user.name "dm.ai"
+          git config --global user.email "dm.ai@epam.com"
+          echo "✅ Git author configured as dm.ai"
 
       - name: Run AI Teammate
         env:
@@ -170,31 +179,42 @@ jobs:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           JIRA_BASE_PATH: ${{ vars.JIRA_BASE_PATH }}
           JIRA_AUTH_TYPE: ${{ vars.JIRA_AUTH_TYPE }}
+          JIRA_TRANSFORM_CUSTOM_FIELDS_TO_NAMES: ${{ vars.JIRA_TRANSFORM_CUSTOM_FIELDS_TO_NAMES }}
+          JIRA_EXTRA_FIELDS_PROJECT: ${{ vars.JIRA_EXTRA_FIELDS_PROJECT }}
+          # Expected format: JSON array string, e.g. ["customfield_12345"].
+          # Defaults to [] when unset so the downstream parser receives valid JSON.
+          JIRA_EXTRA_FIELDS: ${{ vars.JIRA_EXTRA_FIELDS || '[]' }}
+          JIRA_CLEAR_CACHE: "true"
+          DMTOOLS_CACHE_ENABLED: ${{ vars.DMTOOLS_CACHE_ENABLED }}
 
           # Confluence Configuration
           CONFLUENCE_EMAIL: ${{ secrets.JIRA_EMAIL }}
           CONFLUENCE_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           CONFLUENCE_BASE_PATH: ${{ vars.CONFLUENCE_BASE_PATH }}
           CONFLUENCE_DEFAULT_SPACE: ${{ vars.CONFLUENCE_DEFAULT_SPACE }}
-          CONFLUENCE_GRAPHQL_PATH: ${{ vars.CONFLUENCE_GRAPHQL_PATH }}
 
-          # DMTools Integration Settings
-          DMTOOLS_INTEGRATIONS: "jira,confluence,figma,ai,cli,file,github"
-
-          # AI Service Configuration
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          DEFAULT_LLM: "gemini"
+          # Azure DevOps Configuration
+          ADO_ORGANIZATION: ${{ vars.ADO_ORGANIZATION }}
+          ADO_PROJECT: ${{ vars.ADO_PROJECT }}
+          ADO_TOKEN: ${{ secrets.ADO_TOKEN }}
 
           # Figma Configuration
           FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
           FIGMA_BASE_PATH: ${{ vars.FIGMA_BASE_PATH }}
-          ENCODED_CONFIG: ${{ inputs.encoded_config }}
 
-          # GitHub Authentication for PR creation
+          # GitHub Authentication
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
           SOURCE_GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          SOURCE_GITHUB_WORKSPACE: epam
+          SOURCE_GITHUB_REPOSITORY: dm.ai
+
+          # AI / Gemini Configuration
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          GEMINI_DEFAULT_MODEL: ${{ vars.GEMINI_DEFAULT_MODEL }}
+          GEMINI_BASE_PATH: ${{ vars.GEMINI_BASE_PATH }}
 
           # GitHub Copilot CLI Authentication
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN || secrets.PAT_TOKEN }}
@@ -208,6 +228,16 @@ jobs:
           CODEMIE_BASE_URL: ${{ vars.CODEMIE_BASE_URL }}
           CODEMIE_MODEL: ${{ vars.CODEMIE_MODEL }}
           CODEMIE_MAX_TURNS: ${{ vars.CODEMIE_MAX_TURNS }}
+
+          # DMTools Integration Settings
+          DMTOOLS_INTEGRATIONS: "jira,confluence,ado,figma,ai,cli,file,github"
+
+          # Encoded config input
+          ENCODED_CONFIG: ${{ inputs.encoded_config }}
+
+          # DMTools Advanced Configuration
+          PROMPT_CHUNK_TOKEN_LIMIT: ${{ vars.PROMPT_CHUNK_TOKEN_LIMIT }}
+          CLI_ALLOWED_COMMANDS: "find,ls,cat,mkdir,bash"
 
         run: |
           echo "Using configuration: ${{ inputs.config_file }}"

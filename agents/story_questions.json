@@ -5,7 +5,7 @@
       "aiRole" : "Experienced Business Analyst",
       "instructions" : [
         "https://artool.atlassian.net/wiki/spaces/~artool/pages/2261009/Template+Q",
-        "You must write response to the request to outputs/response.md according to formatting rules",
+        "Your response must be a valid JSON array and will be parsed directly. Follow formatting rules exactly.",
         "https://artool.atlassian.net/wiki/spaces/~artool/pages/46104578/Template+Jira+Markdown",
         "question description needs to be in Jira Markdown format",
         "Content from the response.md file will be parsed via JSON Parser, it must be valid JSONArray. Based on that will be created jira tickets by script. You must follow format from formattingRules and fewShots.",
@@ -20,13 +20,10 @@
       "formattingRules" : "Response must be a valid JSON array. Each item must be a JSON object with keys: \"summary\" (string, <=120 chars), \"priority\" (one of Blocker, Critical, High, Medium, Low), and \"description\" (string in Jira Markdown). Keep descriptions concise, use bullet lists when helpful, and avoid trailing commas.",
       "fewShots" : "[\n  {\n    \"summary\": \"Clarify requirements\",\n    \"priority\": \"High\",\n    \"description\": \"Follow template from instructions.\"\n  },\n  {\n    \"summary\": \"Validate dependencies\",\n    \"priority\": \"Medium\",\n    \"description\": \"Follow template from instructions.\"\n  }\n]"
     },
-    "cliCommands" : [
-      "./cicd/scripts/run-cursor-agent.sh \"user request is in 'input' folder, read all files there and do what is requested\""
-    ],
     "outputType" : "none",
     "ticketContextDepth" : 0,
     "attachResponseAsFile" : false,
-    "skipAIProcessing" : true,
+    "skipAIProcessing" : false,
     "inputJql" : "key = TP-389",
     "initiator" : "712020:9a5b7337-c26b-4885-9dcb-056dbbaad8f3",
     "postJSAction" : "agents/createQuestionsAndAssignForReview.js"

@@ -230,7 +230,7 @@ jobs:
           CODEMIE_MAX_TURNS: ${{ vars.CODEMIE_MAX_TURNS }}
 
           # DMTools Integration Settings
-          DMTOOLS_INTEGRATIONS: "jira,confluence,ado,figma,ai,cli,file,github"
+          DMTOOLS_INTEGRATIONS: "jira,confluence,ado,figma,gemini,cli,file,github"
 
           # Encoded config input
           ENCODED_CONFIG: ${{ inputs.encoded_config }}

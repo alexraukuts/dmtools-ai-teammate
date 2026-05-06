@@ -213,10 +213,11 @@ You can set up Jira automation rules to automatically trigger the AI teammate wo
        "ref": "main",
        "inputs": {
          "config_file": "agents/story_description.json", 
+         "concurrency_key": "{{issue.key}}",
          "encoded_config": "{{#urlEncode}}{
-       \"params\": {
-         \"inputJql\": \"key = {{issue.key}}\",
-         \"initiator\": \"{{initiator.name}}\"
+       "params": {
+         "inputJql": "key = {{issue.key}}",
+         "initiator": "{{initiator.name}}"
        }
      }{{/urlEncode}}"
        }
@@ -240,10 +241,11 @@ You can set up Jira automation rules to automatically trigger the AI teammate wo
        "ref": "main",
        "inputs": {
          "config_file": "agents/story_questions.json", 
+         "concurrency_key": "{{issue.key}}",
          "encoded_config": "{{#urlEncode}}{
-       \"params\": {
-         \"inputJql\": \"key = {{issue.key}}\",
-         \"initiator\": \"{{initiator.name}}\"
+       "params": {
+         "inputJql": "key = {{issue.key}}",
+         "initiator": "{{initiator.name}}"
        }
      }{{/urlEncode}}"
        }

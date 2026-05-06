@@ -28,7 +28,7 @@
     "operationType" : "Replace",
     "ticketContextDepth" : 0,
     "attachResponseAsFile" : false,
-    "skipAIProcessing" : true,
+    "skipAIProcessing" : false,
     "inputJql" : "key = TP-397",
     "initiator" : "712020:9a5b7337-c26b-4885-9dcb-056dbbaad8f3",
     "postJSAction" : "agents/assignForReview.js"
